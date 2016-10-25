@@ -1,4 +1,4 @@
-/* ithbit.c */
+/* sumint.c */
 
 # include <math.h>
 # include <stdlib.h>
