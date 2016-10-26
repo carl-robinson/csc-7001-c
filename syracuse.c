@@ -8,34 +8,106 @@
 
 ////////////////////////////////////////////////
 //function that takes s0 and n as args, and returns nth element in series
-int element ( unsigned int s0, unsigned int n ) {
-    int nthelement;
-    nthelement = 111;
-    return nthelement;
+int element ( unsigned int s, unsigned int n ) {
+    //declare counter for element in the series
+    int i;
+    //while loop, to test if s0 and subsequent s != 1. Start at 2, as first
+    //element is the parameter s before modification
+    for (i=2; i<=n; i++) {
+        
+        //if s is even, divide it by two
+        if (s % 2 == 0 ) {
+            s /= 2;
+        }
+        //if s is odd, multiply it by 3 then add 1
+        else {
+            s = 3 * s + 1;
+        }
+    }
+
+    return s;
 }
 
 ////////////////////////////////////////////////
 //function that takes s0 and returns number of iterations before reaching 1
-unsigned int iterationsto1 ( unsigned int s0 ) {
-    unsigned int iterations;
-    iterations = 222;
+unsigned int iterationsto1 ( unsigned int s ) {
+    //must initialise counter to zero, or else could start from any value
+    unsigned int iterations = 0;
+    //iterations = 222;
+
+    //while loop, to test if s0 and subsequent s != 1
+    while (s != 1) {
+        
+        //if s is even, divide it by two
+        if (s % 2 == 0 ) {
+            s /= 2;
+        }
+        //if s is odd, multiply it by 3 then add 1
+        else {
+            s = 3 * s + 1;
+        }
+
+        //increment iterations counter in either case
+        iterations++;
+
+    }
+
     return iterations;
 }
 
 ////////////////////////////////////////////////
 //function that takes s0 and returns the number of iterations before reaching
 //less than s0
-unsigned int iterationstos0 ( unsigned int s0 ) {
-    unsigned int iterations;
-    iterations = 333;
+unsigned int iterationstos0 ( unsigned int s ) {
+    //must initialise counter to zero, or else could start from any value
+    unsigned int iterations = 0;
+    //save value of s0
+    unsigned int s0 = s;
+
+    //while loop, to test if s0 and subsequent s >= s0
+    while (s >= s0) {
+        
+        //if s is even, divide it by two
+        if (s % 2 == 0 ) {
+            s /= 2;
+        }
+        //if s is odd, multiply it by 3 then add 1
+        else {
+            s = 3 * s + 1;
+        }
+
+        //increment iterations counter in either case
+        iterations++;
+    }
+
     return iterations;
 }
 
 ////////////////////////////////////////////////
 //function that takes s0 and continues until reaching 1, returning the highest value taken by sN along the way 
-int highestvalue ( unsigned int s0 ) {
-    int highest;
-    highest = 444;
+int highestvalue ( unsigned int s ) {
+    //declare highest value counter as 1
+    int highest = 1;
+
+     //while loop, to test if s0 and subsequent s != 1
+    while (s != 1) {
+        
+        //if s is even, divide it by two
+        if (s % 2 == 0 ) {
+            s /= 2;
+        }
+        //if s is odd, multiply it by 3 then add 1
+        else {
+            s = 3 * s + 1;
+        }
+
+        //if s > highest, set highest to s, otherwise do nothing
+        if (s > highest) {
+            highest = s;
+        }
+
+    }    
+
     return highest;
 }
 
