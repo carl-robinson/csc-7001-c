@@ -26,9 +26,36 @@ printf("At any time press  p to print top of stack, or q to quit.\n");
 
 while(1){
     printf("Enter number/operator/p/q: \n");
-    while((c = getchar()) != '\n'){
-        printf("yes");
+    while((c = getchar()) != '\n' && c != 'q'){
+        //printf("yes");
+        switch(c){
+            case '0' :
+            case '1' :
+            case '2' :
+            case '3' :
+            case '4' :
+            case '5' :
+            case '6' :
+            case '7' :
+            case '8' :
+            case '9' :
+            //push
+            break;
+            case '+' :
+            case '-' :
+            case '*' :
+            case '/' :
+            //popx2,calc,push
+            break;
+            case 'p' :
+            case 'q' :
+            break;
+            default :
+            printf("Invalid command, please try again\n");
+            break;
+        }
     }
+    if(c == 'q') break;
 }
 
 
