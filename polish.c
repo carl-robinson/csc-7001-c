@@ -19,6 +19,8 @@ int main ( int argc, char * argv []) {
 //for p print top
 
 char c;
+stack s;
+int a,b;
 
 printf("Welcome to the Reverse Polish Calculator!\n");
 printf("Enter single numbers from 0-9 and operators +-*/ to calculate.\n");
@@ -39,20 +41,57 @@ while(1){
             case '7' :
             case '8' :
             case '9' :
-            //push
-            break;
+                //push
+                s = push(s,c - '0');
+                break;
             case '+' :
-            case '-' :
+                //top,pop,top,pop,calc,push
+                b = top(s);
+                s = pop(s);
+                a = top(s);
+                printf("%d + %d = %d\n",a,b);
+                s = pop(s);
+                s = push(s,a+b);
+                top(s);
+                break;
+           case '-' :
+                //top,pop,top,pop,calc,push
+                //subtracts b from a, e.g. 52- means 5-2
+                b = top(s);
+                s = pop(s);
+                a = top(s);
+                s = pop(s);
+                printf("%d * %d = %d\n",a,b,a-b);
+                s = push(s,a-b);
+                top(s);
+                break;
             case '*' :
+                //top,pop,top,pop,calc,push
+                b = top(s);
+                s = pop(s);
+                a = top(s);
+                s = pop(s);
+                printf("%d * %d = %d\n",a,b,a*b);
+                s = push(s,a*b);
+                top(s);
+                break;
             case '/' :
-            //popx2,calc,push
-            break;
+                //top,pop,top,pop,calc,push
+                //divides b by a, e.g. 52/ means 5/2
+                b = top(s);
+                s = pop(s);
+                a = top(s);
+                s = pop(s);
+                printf("%d / %d = %d\n",a,b,a/b);
+                s = push(s,a/b);
+                top(s);
+                break;
             case 'p' :
             case 'q' :
-            break;
+                break;
             default :
-            printf("Invalid command, please try again\n");
-            break;
+                printf("Invalid command, please try again\n");
+                break;
         }
     }
     if(c == 'q') break;
@@ -80,9 +119,7 @@ while(1){
     s = push(s,12);
     s = pop(s);
 */
-
-
-    return 0; 
+return 0; 
 
 }// end of main function
 

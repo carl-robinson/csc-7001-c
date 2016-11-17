@@ -35,7 +35,6 @@ stack push(stack s, int i){
     e->val = i;
     e->link = s;
     printf("Pushed %d to stack\n",i);
-    printf("Top of stack is: %d\n",i);
     return e;
 }
 ///////////////////////////////////////
@@ -45,16 +44,15 @@ stack pop(stack s){
         printf("Cannot pop. Stack is empty.\n");
         return NULL;
     }
-    free(s);
     printf("Popped top of stack\n");
-    printf("Top of stack is: %d\n",s->link->val);
+    free(s);
     return s->link;
 }
 ///////////////////////////////////////
 //top function
 int top(stack s){
     if (isempty(s)){
-        printf("Cannot pop. Stack is empty.\n");
+        printf("Cannot return value. Stack is empty.\n");
         return 0;
     }
     printf("Top of stack is: %d\n",s->val);
