@@ -49,8 +49,8 @@ while(1){
                 b = top(s);
                 s = pop(s);
                 a = top(s);
-                printf("%d + %d = %d\n",a,b);
                 s = pop(s);
+                printf("%d + %d = %d\n",a,b,a+b);
                 s = push(s,a+b);
                 top(s);
                 break;
@@ -87,6 +87,8 @@ while(1){
                 top(s);
                 break;
             case 'p' :
+                top(s);
+                break;
             case 'q' :
                 break;
             default :
