@@ -10,7 +10,7 @@ int main ( int argc, char * argv []) {
     //keep doing that until EOF sent with ^D
     
     //declare vars
-    char c;
+    char c,ch;
 
     //write a string to a file
     FILE * fdw;
