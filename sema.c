@@ -39,7 +39,7 @@ int main ( int argc, char * argv [ ] )
     int shmid;
     char * addr;
     key_t key;
-    key = ftok("/mci/msc2015/robinson/key4",71);
+    key = ftok("/mci/msc2015/robinson/key6",71);
     perror("SHMKEY");
     shmid = shmget(key, sizeof(char), IPC_CREAT | IPC_EXCL | 0666);
     perror("SHMGET");
@@ -60,23 +60,24 @@ int main ( int argc, char * argv [ ] )
             printf("sum\n");
             while(1){
                  //P for trans to get val/wait
-                semop(semid, &P[1], 1);
+                semop(semid, &P[0], 1);
                 //get value from shm
                 c = *addr; 
 
                 //test value and increment       
                 if(isdigit(c)){
                     total += (c - '0');
+                    c = (char) total + '0';
+                    //put total into shm
+                    printf("c=%c\n",c);
+                    sprintf (addr, &c);
                 }
                 else{
                     total = 0;
                 }
-                //put total into shm
-                c = (char) total + '0';
-                sprintf (addr, &c);
  
                 //V for trans to release shm
-                semop(semid, &V[1], 1);       
+                semop(semid, &V[0], 1);       
             }
             _exit(1);
         default:
@@ -89,9 +90,11 @@ int main ( int argc, char * argv [ ] )
                     printf("translate\n");
                     while(1){
                         //P for sum to get val/wait
-                        semop(semid, &P[0], 1);
+                        semop(semid, &P[1], 1);
+                        printf("in translate proc\n");
                         //get value from shm
                         c = *addr; 
+                        printf("trans proc got result from shared c=%c\n",c);
                        
                         if(isalpha(c)){
                             if(islower(c)){
@@ -101,11 +104,14 @@ int main ( int argc, char * argv [ ] )
                                 c = (char) tolower(c);
                             }
                         }
+                        printf("trans proc changed char. c=%c\n",c);
                         //put modified char in shm
-                        sprintf (addr, &c);
+                        sprintf (addr, &c); 
+                        printf("put c in shared mem. addr=%c\n",*addr);
                         
                         //V for disp to release shm
-                        semop(semid, &V[0], 1);
+                        semop(semid, &V[1], 1);
+                        printf("V sent from trans\n");
                     }
                     _exit(1);
                 default:
@@ -121,23 +127,28 @@ int main ( int argc, char * argv [ ] )
                         }
 
                         //put c in shm
+                        printf("putting c in shared mem. c=%c\n",c);
                         sprintf (addr, &c);
+                        printf("put c in shared mem. addr=%c\n",*addr);
 
                         if(isalpha(c)){
                             //V for trans to do operation
                             semop(semid, &V[1], 1);
+                            printf("V sent for trans\n");
                         }
                         else if(isdigit(c)){
                             //V for sum to do operation
                             semop(semid, &V[0], 1);
+                            printf("V sent for sum\n");
                         }
 
                         //clear input stream of all other chars
                         while('\n'!=getchar()); 
                         
                        //get result from shm
+                        printf("getting result from shared mem. addr=%c\n",*addr);
                         c = *addr; 
-
+                        printf("got result from shared c=%c\n",c);
                        //print it
                        printf("%c\n",c); 
                     }
