@@ -8,9 +8,12 @@
 # include <sys/shm.h>
 # include <sys/sem.h>
 
+# define KEY (1492)
+
 //global counter for sum function
 int i, total = 0;
 char c;
+
 
 int main ( int argc, char * argv [ ] )
 {
@@ -18,13 +21,13 @@ int main ( int argc, char * argv [ ] )
 
     //create semaphore
     int semid;
-    semid = semget(IPC_PRIVATE, 3, IPC_CREAT | 600);
-    //create semaphore structs 0=sum, 1=trans
-    //struct sembuf P[3] = {{0,-1,0}, {1,-1,0}, {2,-1,0}};
-    struct sembuf P[2] = {{0,-1,0}, {1,-1,0}};
-    //struct sembuf V[3] = {{0,1,0}, {1,1,0}, {2,1,0}};
-    struct sembuf V[2] = {{0,1,0}, {1,1,0}};
-    //initialise semaphore
+    semid = semget(KEY, 3, IPC_CREAT | 600);
+
+    //create semaphore structs 0=disp, 1=sum, 2=trans
+    struct sembuf P[3] = {{0,-1,0}, {1,-1,0}, {2,-1,0}};
+    struct sembuf V[3] = {{0,1,0}, {1,1,0}, {2,1,0}};
+
+    //initialise semaphores
     union semun {
         int val;
         struct semid_ds * buf;
@@ -32,16 +35,25 @@ int main ( int argc, char * argv [ ] )
         struct seminfo * __buf;
     };
     
-    union semun semopts;
-    semctl(semid, 0, SETVAL, semopts);
+    union semun semopts_disp;
+    union semun semopts_sum;
+    union semun semopts_trans;
+    //set dispatcher to start immediately
+    semopts_disp.val = 0;
+    semctl(semid, 0, SETVAL, semopts_disp);
+    //set sum and trans to wait
+    semopts_sum.val = 0;
+    semctl(semid, 1, SETVAL, semopts_sum);
+    semopts_trans.val = 0;
+    semctl(semid, 2, SETVAL, semopts_trans);
 
     //create shared memory (so it's linked to all children)
     int shmid;
     char * addr;
     key_t key;
-    key = ftok("/mci/msc2015/robinson/key6",71);
+    //key = ftok("/mci/msc2015/robinson/key6",71);
     perror("SHMKEY");
-    shmid = shmget(key, sizeof(char), IPC_CREAT | IPC_EXCL | 0666);
+    shmid = shmget(KEY, sizeof(char), IPC_CREAT | IPC_EXCL | 0666);
     perror("SHMGET");
     printf ("shmid:%p\n", shmid);
     //attach main/dispatcher proc to shm
@@ -59,8 +71,8 @@ int main ( int argc, char * argv [ ] )
             //sum code
             printf("sum\n");
             while(1){
-                 //P for trans to get val/wait
-                semop(semid, &P[0], 1);
+                 //P for sum to get val/wait
+                semop(semid, &P[1], 1);
                 //get value from shm
                 c = *addr; 
 
@@ -75,9 +87,9 @@ int main ( int argc, char * argv [ ] )
                 else{
                     total = 0;
                 }
- 
-                //V for trans to release shm
-                semop(semid, &V[0], 1);       
+
+                //V for disp to release shm
+                semop(semid, &V[0], 1);
             }
             _exit(1);
         default:
@@ -89,8 +101,9 @@ int main ( int argc, char * argv [ ] )
                     //translate code
                     printf("translate\n");
                     while(1){
-                        //P for sum to get val/wait
-                        semop(semid, &P[1], 1);
+                        //P for trans to get val/wait
+                        semop(semid, &P[2], 1);
+
                         printf("in translate proc\n");
                         //get value from shm
                         c = *addr; 
@@ -110,7 +123,7 @@ int main ( int argc, char * argv [ ] )
                         printf("put c in shared mem. addr=%c\n",*addr);
                         
                         //V for disp to release shm
-                        semop(semid, &V[1], 1);
+                        semop(semid, &V[0], 1);
                         printf("V sent from trans\n");
                     }
                     _exit(1);
@@ -118,6 +131,10 @@ int main ( int argc, char * argv [ ] )
                     //dispatcher code
                     printf("dispatcher\n");
                     while(1){
+                        
+                        //P for disp to run 
+                        semop(semid, &P[0], 1);
+
                         //getchar and put in shm
                         c = getchar();
                         
@@ -133,12 +150,12 @@ int main ( int argc, char * argv [ ] )
 
                         if(isalpha(c)){
                             //V for trans to do operation
-                            semop(semid, &V[1], 1);
+                            semop(semid, &V[2], 1);
                             printf("V sent for trans\n");
                         }
                         else if(isdigit(c)){
                             //V for sum to do operation
-                            semop(semid, &V[0], 1);
+                            semop(semid, &V[1], 1);
                             printf("V sent for sum\n");
                         }
 
@@ -151,7 +168,7 @@ int main ( int argc, char * argv [ ] )
                         printf("got result from shared c=%c\n",c);
                        //print it
                        printf("%c\n",c); 
-                    }
+                   }
                     
                     //detach the shared memory
                     shmdt(addr);
